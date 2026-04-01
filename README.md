@@ -53,6 +53,11 @@ Visit: [http://localhost:8000](http://localhost:8000)
     "What is the total value of assets?",
     "How many assets are in repair?"
   ],
+  "token_usage": { "prompt_tokens": 1420, "completion_tokens": 180, "total_tokens": 1600 },
+  "latency_ms": 1340,
+  "provider": "openai",
+  "model": "gpt-4o",
+  "status": "ok"
 }
 ```
 
