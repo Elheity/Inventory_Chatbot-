@@ -91,7 +91,7 @@ class ChatHandler(BaseHTTPRequestHandler):
             return
 
         response: ChatResponse = chat(req.session_id, req.message)
-        out = response.model_dump(include={"answer", "query", "suggested_questions"})
+        out = response.model_dump(include={"answer", "query", "suggested_questions", "token_usage", "latency_ms", "provider", "model", "status"})
         self._send_json(out)
 
     def _handle_clear_session(self):
