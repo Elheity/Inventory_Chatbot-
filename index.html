@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory Assistant — asap SYSTEMS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #f5f7fa;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --accent: #2563eb;
+      --accent-lt: #eff6ff;
+      --user-bg: #2563eb;
+      --bot-bg: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --code-bg: #f8fafc;
+      --code-border: #e2e8f0;
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      box-shadow: var(--shadow);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .brand-text h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .brand-text span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #16a34a;
+      background: #f0fdf4;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid #bbf7d0;
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #16a34a;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .4
+      }
+    }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      max-width: 860px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    /* ── Messages ── */
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 0 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    #messages::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    #messages::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    /* ── Welcome card ── */
+    .welcome-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .welcome-card h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .welcome-card p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .quick-questions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .quick-btn {
+      background: var(--accent-lt);
+      border: 1px solid #bfdbfe;
+      color: var(--accent);
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .18s;
+      font-family: inherit;
+      font-weight: 500;
+    }
+
+    .quick-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* ── Message bubbles ── */
+    .msg {
+      display: flex;
+      gap: 10px;
+      animation: fadeUp .25s ease;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(6px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    .msg.user {
+      flex-direction: row-reverse;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .avatar.bot {
+      background: var(--accent-lt);
+      border: 1px solid #bfdbfe;
+      font-size: 16px;
+    }
+
+    .avatar.user {
+      background: var(--accent);
+      color: #fff;
+      font-size: 13px;
+    }
+
+    .bubble-wrap {
+      display: flex;
+      flex-direction: column;
+      max-width: 78%;
+      gap: 8px;
+    }
+
+    .msg.user .bubble-wrap {
+      align-items: flex-end;
+    }
+
+    .bubble {
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .msg.user .bubble {
+      background: var(--accent);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg.bot .bubble {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+      color: var(--text);
+      box-shadow: var(--shadow);
+    }
+
+    /* ── SQL Block ── */
+    .sql-block {
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 10px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .sql-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 14px;
+      background: #f1f5f9;
+      border-bottom: 1px solid var(--code-border);
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .copy-btn {
+      cursor: pointer;
+      color: var(--accent);
+      background: none;
+      border: none;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: inherit;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: background .15s;
+    }
+
+    .copy-btn:hover {
+      background: var(--accent-lt);
+    }
+
+    .sql-code {
+      padding: 12px 14px;
+      font-size: 12.5px;
+      line-height: 1.7;
+      font-family: 'Courier New', monospace;
+      color: #1e40af;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* ── Suggested Questions ── */
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .sugg-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      width: 100%;
+      margin-bottom: 2px;
+    }
+
+    .sugg-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all .18s;
+      font-family: inherit;
+      text-align: left;
+      font-weight: 500;
+    }
+
+    .sugg-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-lt);
+    }
+
+    /* ── Typing indicator ── */
+    .typing {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 12px 16px;
+    }
+
+    .typing span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+      animation: bounce 1.1s infinite;
+    }
+
+    .typing span:nth-child(2) {
+      animation-delay: .15s;
+    }
+
+    .typing span:nth-child(3) {
+      animation-delay: .30s;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      60%,
+      100% {
+        transform: translateY(0)
+      }
+
+      30% {
+        transform: translateY(-7px)
+      }
+    }
+
+    /* ── Input area ── */
+    .input-area {
+      padding: 14px 0 20px;
+      flex-shrink: 0;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 14px;
+      box-shadow: var(--shadow);
+      transition: border-color .18s;
+    }
+
+    .input-row:focus-within {
+      border-color: var(--accent);
+    }
+
+    #input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      resize: none;
+      max-height: 120px;
+      min-height: 24px;
+      line-height: 1.5;
+    }
+
+    #input::placeholder {
+      color: #94a3b8;
+    }
+
+    .actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .clear-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: all .18s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .clear-btn:hover {
+      border-color: #ef4444;
+      color: #ef4444;
+      background: #fef2f2;
+    }
+
+    #send-btn {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all .18s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #send-btn:hover {
+      background: #1d4ed8;
+    }
+
+    #send-btn:disabled {
+      background: #cbd5e1;
+      cursor: not-allowed;
+    }
+
+    .hint {
+      font-size: 11px;
+      color: #94a3b8;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    kbd {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 4px;
+      font-size: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-icon">📦</div>
+      <div class="brand-text">
+        <h1>Inventory Assistant</h1>
+        <span>asap SYSTEMS · Powered by GPT-4o</span>
+      </div>
+    </div>
+    <div class="status-pill">
+      <div class="status-dot"></div>Online
+    </div>
+  </header>
+
+  <main>
+    <div id="messages">
+      <div class="welcome-card">
+        <h2>Welcome to Inventory Assistant 👋</h2>
+        <p>Ask me anything about your inventory — assets, vendors, orders, bills, and more.<br>
+          I'll answer in plain English and show you the exact SQL query behind each answer.</p>
+        <div class="quick-questions">
+          <button class="quick-btn" onclick="sendMessage('How many assets do I have?')">How many assets?</button>
+          <button class="quick-btn" onclick="sendMessage('Show me assets by site')">Assets by site</button>
+          <button class="quick-btn" onclick="sendMessage('What are my open purchase orders?')">Open POs</button>
+          <button class="quick-btn" onclick="sendMessage('Which vendor supplied the most assets?')">Top vendor</button>
+          <button class="quick-btn" onclick="sendMessage('What is the total value of all assets?')">Total value</button>
+          <button class="quick-btn" onclick="sendMessage('Show me pending bills')">Pending bills</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-row">
+        <textarea id="input" rows="1" placeholder="Ask about your inventory..." onkeydown="handleKey(event)"
+          oninput="autoResize(this)"></textarea>
+        <div class="actions">
+          <button class="clear-btn" onclick="clearSession()" title="Clear conversation">🗑</button>
+          <button id="send-btn" onclick="sendMessage()" title="Send">➤</button>
+        </div>
+      </div>
+      <div class="hint">Press <kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for new line</div>
+    </div>
+  </main>
+
+  <script>
+    const SESSION_ID = 'session-' + Math.random().toString(36).slice(2, 10);
+    const messagesEl = document.getElementById('messages');
+    const inputEl = document.getElementById('input');
+    const sendBtn = document.getElementById('send-btn');
+    let isLoading = false;
+
+    function autoResize(el) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+    }
+
+    function handleKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    }
+
+    function scrollToBottom() {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function appendUserMessage(text) {
+      const div = document.createElement('div');
+      div.className = 'msg user';
+      div.innerHTML = `
+      <div class="avatar user">U</div>
+      <div class="bubble-wrap">
+        <div class="bubble">${escapeHtml(text)}</div>
+      </div>`;
+      messagesEl.appendChild(div);
+      scrollToBottom();
+    }
+
+    function appendThinking() {
+      const div = document.createElement('div');
+      div.className = 'msg bot';
+      div.id = 'thinking';
+      div.innerHTML = `
+      <div class="avatar bot">🤖</div>
+      <div class="bubble-wrap">
+        <div class="bubble">
+          <div class="typing"><span></span><span></span><span></span></div>
+        </div>
+      </div>`;
+      messagesEl.appendChild(div);
+      scrollToBottom();
+      return div;
+    }
+
+    function appendBotMessage(data) {
+      const thinkEl = document.getElementById('thinking');
+      if (thinkEl) thinkEl.remove();
+
+      const suggHtml = (data.suggested_questions || []).map(q =>
+        `<button class="sugg-btn" data-q="${escapeHtml(q)}">${escapeHtml(q)}</button>`
+      ).join('');
+
+      const sqlHtml = data.query ? `
+      <div class="sql-block">
+        <div class="sql-header">
+          <span>🔍 Present Query (SQL Server)</span>
+          <button class="copy-btn" data-sql="${escapeHtml(data.query)}">Copy</button>
+        </div>
+        <div class="sql-code">${escapeHtml(data.query)}</div>
+      </div>` : '';
+
+      const div = document.createElement('div');
+      div.className = 'msg bot';
+      div.innerHTML = `
+      <div class="avatar bot">🤖</div>
+      <div class="bubble-wrap">
+        <div class="bubble">${escapeHtml(data.answer)}</div>
+        ${sqlHtml}
+        ${suggHtml ? `<div class="suggestions"><div class="sugg-label">Suggested questions</div>${suggHtml}</div>` : ''}
+      </div>`;
+      messagesEl.appendChild(div);
+      scrollToBottom();
+    }
+
+    function appendError(msg) {
+      const thinkEl = document.getElementById('thinking');
+      if (thinkEl) thinkEl.remove();
+      const div = document.createElement('div');
+      div.className = 'msg bot';
+      div.innerHTML = `
+      <div class="avatar bot">🤖</div>
+      <div class="bubble-wrap">
+        <div class="bubble" style="color:#ef4444; border-color:#fecaca; background:#fef2f2;">⚠️ ${escapeHtml(msg)}</div>
+      </div>`;
+      messagesEl.appendChild(div);
+      scrollToBottom();
+    }
+
+    async function sendMessage(text) {
+      const msg = (text || inputEl.value).trim();
+      if (!msg || isLoading) return;
+
+      isLoading = true;
+      inputEl.value = '';
+      inputEl.style.height = 'auto';
+      sendBtn.disabled = true;
+
+      appendUserMessage(msg);
+      appendThinking();
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: SESSION_ID, message: msg })
+        });
+        const data = await res.json();
+        if (data.error) {
+          appendError(data.error || 'Unknown error');
+        } else {
+          appendBotMessage(data);
+        }
+      } catch (err) {
+        appendError('Network error: ' + err.message);
+      } finally {
+        isLoading = false;
+        sendBtn.disabled = false;
+        inputEl.focus();
+      }
+    }
+
+    async function clearSession() {
+      if (!confirm('Clear this conversation?')) return;
+      await fetch('/api/session/clear', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: SESSION_ID })
+      });
+      location.reload();
+    }
+
+
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    // Single delegated listener handles sugg-btn clicks and copy-btn clicks
+    document.addEventListener('click', async function (e) {
+      const sugg = e.target.closest('.sugg-btn');
+      if (sugg) {
+        const q = sugg.getAttribute('data-q');
+        if (q) sendMessage(q);
+        return;
+      }
+      const copyBtn = e.target.closest('.copy-btn');
+      if (copyBtn) {
+        const sql = copyBtn.getAttribute('data-sql');
+        if (!sql) return;
+        try {
+          await navigator.clipboard.writeText(sql);
+        } catch (_) {
+          // fallback for browsers without clipboard API
+          const ta = document.createElement('textarea');
+          ta.value = sql; document.body.appendChild(ta);
+          ta.select(); document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => (copyBtn.textContent = 'Copy'), 1800);
+      }
+    });
+  </script>
+</body>
+
+</html>
